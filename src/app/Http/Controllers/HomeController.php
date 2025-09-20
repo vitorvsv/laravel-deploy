@@ -6,6 +6,6 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return "{'message': 'Home route'}";
+        return json_encode(['message' => 'Home route']);
     }
 }
