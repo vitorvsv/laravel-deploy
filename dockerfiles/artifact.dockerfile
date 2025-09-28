@@ -61,9 +61,6 @@ COPY ./supervisord/supervisord.conf /etc/supervisord.conf
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
   && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Permissão correta para o sqlite
-RUN chown -R www-data:www-data /var/www/html/database/*.sqlite*
-
 EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
