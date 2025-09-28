@@ -1,8 +1,7 @@
 name: CI/CD
 
 on: workflow_dispatch
-env:
-  AWS_REGION: "us-east-1"
+
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
@@ -34,3 +33,26 @@ jobs:
 
       - name: Push to ECR
         run: docker push ${{ secrets.ECR_REPOSITORY }}:latest
+  deploy:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          role-session-name: github-actions-session
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+      - name: Deploy to EKS
+        run: kubectl apply -f kubernetes/laravel-app.yaml
