@@ -1,0 +1,36 @@
+name: CI/CD
+
+on: workflow_dispatch
+env:
+  AWS_REGION: "us-east-1"
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          role-session-name: github-actions-session
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build
+        run: docker build -f dockerfiles/artifact.dockerfile -t vitorvsv/ilaravel-deploy .
+
+      - name: Tagging
+        run: docker tag ilaravel-deploy:latest ${{ secrets.ECR_REPOSITORY }}:latest
+
+      - name: Push to ECR
+        run: docker push ${{ secrets.ECR_REPOSITORY }}:latest
