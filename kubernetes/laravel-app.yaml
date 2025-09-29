@@ -27,4 +27,4 @@ spec:
     spec:
       containers:
         - name: laravel-app
-          image: 038504125973.dkr.ecr.us-east-1.amazonaws.com/ilaravel-deploy:latest
+          image: 038504125973.dkr.ecr.us-east-1.amazonaws.com/ilaravel-deploy
