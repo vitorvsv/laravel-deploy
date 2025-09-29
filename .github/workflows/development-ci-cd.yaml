@@ -28,6 +28,7 @@ jobs:
       - name: Set up environment variables
         run: |
           aws s3 cp s3://env-vsv/laravel-deploy/development/env src/.env
+          aws s3 cp s3://env-vsv/laravel-deploy/development/database.sqlite src/database/database.sqlite
 
       - name: Build
         run: docker build -f dockerfiles/artifact.dockerfile -t ilaravel-deploy .
