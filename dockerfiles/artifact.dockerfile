@@ -57,12 +57,18 @@ COPY ./nginx/nginx.production.conf /etc/nginx/nginx.conf
 # Copia configuração do Supervisor (para gerenciar PHP-FPM e Nginx juntos)
 COPY ./supervisord/supervisord.conf /etc/supervisord.conf
 
+# Cria usuário www-data se não existir
+RUN addgroup -g 1000 www-data 2>/dev/null || true && \
+  adduser -D -s /bin/sh -u 1000 -G www-data www-data 2>/dev/null || true
+
 # Permissões corretas para storage e bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
   && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Permissão correta para o sqlite
-RUN chown www-data:www-data /var/www/html/database/database.sqlite
+# Permissão correta para o sqlite (verifica se o arquivo existe antes)
+RUN if [ -f /var/www/html/database/database.sqlite ]; then \
+  chown www-data:www-data /var/www/html/database/database.sqlite; \
+  fi
 
 EXPOSE 80
 
