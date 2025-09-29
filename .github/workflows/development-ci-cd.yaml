@@ -25,9 +25,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # For real or production project, use SSM and/or Parameter Store to set up environment variables
       - name: Set up environment variables
         run: |
           aws s3 cp s3://env-vsv/laravel-deploy/development/env src/.env
+
+      # For real or production project, use another database (RDS, MongoDB, etc)
+      # This is only for studies and testing purposes
+      - name: Set up database
+        run: |
           aws s3 cp s3://env-vsv/laravel-deploy/development/database.sqlite src/database/database.sqlite
 
       - name: Build
