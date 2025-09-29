@@ -62,10 +62,10 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
   && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Permissão correta para o sqlite (verifica se o arquivo existe antes)
-# RUN if [ -f /var/www/html/database/database.sqlite ]; then \
-#   chown www-data:www-data /var/www/html/database/database.sqlite; \
-#   fi
-RUN chown www-data:www-data /var/www/html/database/database.sqlite
+RUN if [ -f /var/www/html/database/database.sqlite ]; then \
+  chown www-data:www-data /var/www/html/database/database.sqlite; \
+  fi
+# RUN chown www-data:www-data /var/www/html/database/database.sqlite
 
 EXPOSE 80
 
