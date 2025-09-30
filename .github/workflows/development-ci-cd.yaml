@@ -7,9 +7,21 @@ permissions:
   contents: read # This is required for actions/checkout
 
 jobs:
+  output-image-tag:
+    runs-on: ubuntu-latest
+    environment: development
+    outputs:
+      image-tag: ${{ github.sha }}
+    steps:
+      - name: Output image tag
+        run: |
+          echo "Image tag: ${{ github.sha }}"
+          echo "${{ github.sha }}" >> $GITHUB_OUTPUT
+
   build:
     runs-on: ubuntu-latest
     environment: development
+    needs: output-image-tag
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
