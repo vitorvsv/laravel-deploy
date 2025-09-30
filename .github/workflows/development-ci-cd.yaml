@@ -10,13 +10,10 @@ jobs:
   output-image-tag:
     runs-on: ubuntu-latest
     environment: development
-    outputs:
-      image-tag: ${{ github.sha }}
     steps:
       - name: Output image tag
         run: |
           echo "Image tag: ${{ github.sha }}"
-          echo "${{ github.sha }}" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-latest
