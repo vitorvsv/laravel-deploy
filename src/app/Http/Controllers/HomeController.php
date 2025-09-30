@@ -6,6 +6,6 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return json_encode(['message' => 'Hello World!']);
+        return json_encode(['message' => 'Hello World from Kubernetes!']);
     }
 }
