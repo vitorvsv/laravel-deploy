@@ -22,3 +22,7 @@ Content-Type: application/json
 
 GET {{URL}}/api/posts/1
 Accept: application/json
+
+###
+
+DELETE {{URL}}/api/posts/1

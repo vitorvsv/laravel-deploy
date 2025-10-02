@@ -24,4 +24,11 @@ class PostController extends Controller
         $post = Post::find($id);
         return json_encode(['post' => $post]);
     }
+
+    public function delete($id)
+    {
+        $post = Post::find($id);
+        $post->delete();
+        return json_encode(['message' => 'Post deleted']);
+    }
 }
