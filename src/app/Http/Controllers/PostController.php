@@ -25,6 +25,13 @@ class PostController extends Controller
         return json_encode(['post' => $post]);
     }
 
+    public function update(Request $request, $id)
+    {
+        $post = Post::find($id);
+        $post->update($request->all());
+        return json_encode(['post' => $post]);
+    }
+
     public function delete($id)
     {
         $post = Post::find($id);

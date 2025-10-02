@@ -7,6 +7,7 @@ use App\Http\Controllers\PostController;
 Route::get('/posts', [PostController::class, 'index']);
 Route::post('/posts', [PostController::class, 'create']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
+Route::put('/posts/{id}', [PostController::class, 'update']);
 Route::delete('/posts/{id}', [PostController::class, 'delete']);
 
 Route::get('/user', function (Request $request) {

@@ -20,8 +20,19 @@ Content-Type: application/json
 
 ###
 
-GET {{URL}}/api/posts/1
+GET {{URL}}/api/posts/5
 Accept: application/json
+
+###
+
+PUT {{URL}}/api/posts/5
+Accept: application/json
+Content-Type: application/json
+
+{
+  "title": "Hello Updated",
+  "content": "World Updated"
+}
 
 ###
 
