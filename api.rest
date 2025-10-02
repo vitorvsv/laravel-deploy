@@ -1,1 +1,24 @@
-GET http://localhost/
+@URL=http://localhost:8000
+
+GET {{URL}}
+
+###
+
+GET {{URL}}/api/posts
+Accept: application/json
+
+###
+
+POST {{URL}}/api/posts
+Accept: application/json
+Content-Type: application/json
+
+{
+  "title": "Hello",
+  "content": "World"
+}
+
+###
+
+GET {{URL}}/api/posts/1
+Accept: application/json
