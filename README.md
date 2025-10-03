@@ -1,52 +1,237 @@
-# Description
+# Laravel Deploy Project
 
-Project that provide a complete development docker environment for Laravel. You can use it in your localhost and deploy the artifact with `dockerfiles/artifact.dockerfile` and create containers in a kubernetes cluster.
+A complete Docker-based development environment for Laravel applications with automated CI/CD pipeline for deployment to AWS EKS. This project provides a production-ready setup for containerized Laravel applications with Kubernetes orchestration.
 
-## Tecnologies used
-- Kubernetes
-- AWS: ECR, EKS, IAM, S3
-- CI/CD: GitHub + GitHub Actions (Build + Deploy)
-- Containers: Docker, Docker Compose, Dockerfile
-- Others: Laravel + PHP + Open Connect
+## Project Purpose
 
-## How to run locally
+This project demonstrates a full-stack deployment solution for Laravel applications, featuring:
 
-- Copy the Laravel code to `/src` folder or create a new Laravel application \
-  `docker-compose run --rm composer create-project laravel/laravel .`
+- Local development environment with Docker Compose
+- Automated CI/CD pipeline using GitHub Actions (Tests, Build and Deploy)
+- Production deployment to AWS EKS (Elastic Kubernetes Service)
+- Container image management with AWS ECR
+- Infrastructure as Code with Kubernetes manifests
 
-- Installing dependencies with (skip it if it was did in the last step) \
-  `docker-compose run --rm composer install`
+## Technologies Used
 
-- Run the server with \
-  `docker-compose up -d server`
+### Core Technologies
 
-## How to test artifact in your local machine
+- **Laravel** - PHP web framework
+- **PHP** - Server-side programming language
+- **Docker** - Containerization platform
+- **Docker Compose** - Multi-container orchestration
+- **Kubernetes** - Container orchestration
+- **Nginx** - Web server and reverse proxy
 
-- Build locally \
-  docker build -f dockerfiles/artifact.dockerfile -t vitorvsv/ilaravel-deploy .
+### AWS Services
 
-- Running container locally \
-  docker run -d --name laravel-deploy -p 80:80 vitorvsv/ilaravel-deploy
+- **EKS (Elastic Kubernetes Service)** - Managed Kubernetes clusters
+- **ECR (Elastic Container Registry)** - Container image storage
+- **S3** - Object storage for configuration files
+- **IAM** - Identity and access management
 
-## Publishing image to ECR
+### CI/CD & DevOps
 
-- Added permission for Docker publish in AWS ECR \
-  aws ecr get-login-password --region ${{ AWS_REGION }} | docker login --username AWS --password-stdin ${{ ECR_URI }}
+- **GitHub Actions** - Continuous integration and deployment
+- **OpenID Connect** - Secure AWS authentication
+- **Kubernetes YAML** - Infrastructure as Code
 
-- Tagging image according \
-  docker tag ilaravel-deploy:latest ${{ ECR_URI }}
+## Local Development Setup
 
-- Send image to ECR \
-  docker push ${{ ECR_URI }}:${{ TAG_VERSION }}
+### Prerequisites
 
-## How deploy to a kubernetes cluster
+- Docker and Docker Compose installed
+- Git (for cloning the repository)
 
-- Create a kubernetes cluster in AWS EKS. Remember to use arch x86_64 for worker nodes
-- Create an IAM access entries in your cluster (to be able to use kubectl in your local machine, if you want)
-- The file `kubernetes/laravel-app.yaml` is apply when you run ci_cd workflow, feel free to change it
-  - Remmeber to change the image path for your ECR image URI
-- You need create a s3 bucket to be copied env file and sqlite file
-  - In a real project it is discouraged using this approach, I'm using here to studies purposes
-- In CI step is builded the `dockerfiles/artifact.dockerfile`
-- See the `.github/workflows/development-ci-cd` and create secrets and variables as needed.
-- You need to connect the AWS with Git Hub Actions using [OpenID connect](https://aws.amazon.com/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/)
+### Step 1: Clone and Setup
+
+```bash
+git clone <repository-url>
+cd laravel-deploy
+```
+
+### Step 2: Create Laravel Application
+
+```bash
+# Create a new Laravel application in the src directory
+docker-compose run --rm composer create-project laravel/laravel .
+```
+
+### Step 3: Clone and edit .env
+
+```bash
+# Edit with your configurations
+cp src/.env.example src/.env
+```
+
+### Step 4: Install Dependencies
+
+```bash
+# Install PHP dependencies (skip if done in previous step)
+docker-compose run --rm composer install
+```
+
+### Step 5: Start Development Environment
+
+```bash
+# Start all services in detached mode
+docker-compose up -d server
+```
+
+### Step 6: Access Application
+
+- Open your browser and navigate to `http://localhost`
+- The Laravel application should be running
+
+## Testing Production Artifact Locally
+
+### Build Production Image
+
+```bash
+# Build the production-ready Docker image
+docker build -f dockerfiles/artifact.dockerfile -t laravel-deploy:latest .
+```
+
+### Run Production Container
+
+```bash
+# Run the production container locally
+docker run -d --name laravel-deploy -p 80:80 laravel-deploy:latest
+```
+
+### Verify Deployment
+
+- Access the application at `http://localhost`
+- Check container logs: `docker logs laravel-deploy`
+
+## AWS EKS Deployment
+
+### Prerequisites
+
+- AWS CLI configured with appropriate permissions
+- kubectl installed and configured
+- EKS cluster created with x86_64 worker nodes
+- ECR repository created
+
+### Step 1: Configure AWS Authentication
+
+```bash
+# Configure AWS CLI (if not already done)
+aws configure
+```
+
+### Step 2: Create EKS Cluster
+
+```bash
+# Create EKS cluster (replace with your preferred settings)
+eksctl create cluster --name CLUSTER_NAME --region CLUSTER_REGION --nodegroup-name workers --node-type t3.medium --nodes 2
+```
+
+### Step 3: Configure kubectl
+
+```bash
+# Update kubeconfig for your cluster
+aws eks update-kubeconfig --region CLUSTER_REGION --name CLUSTER_NAME
+```
+
+### Step 4: Set Up GitHub Actions Secrets
+
+Configure the following secrets in your GitHub repository:
+
+- `AWS_REGION` - Your AWS region (e.g., us-west-2)
+- `ECR_URI` - Your ECR repository URI
+- `EKS_CLUSTER_NAME` - Your EKS cluster name
+- `S3_BUCKET_NAME` - S3 bucket for configuration files
+
+### Step 5: Configure OpenID Connect
+
+1. Create an IAM OIDC identity provider for GitHub Actions
+2. Create an IAM role with trust policy for GitHub Actions
+3. Attach necessary permissions (ECR, EKS, S3)
+
+### Step 6: Update Kubernetes Manifest
+
+Edit `kubernetes/laravel-app.yaml`:
+
+- Update the image URI to match your ECR repository
+- Modify resource limits and requests as needed
+- Configure environment variables
+
+### Step 7: Deploy via GitHub Actions
+
+1. Push your code to the main branch
+2. Trigger GitHub Actions on dispatch for:
+   - Configure the application
+   - Build the Docker image
+   - Push to ECR
+   - Deploy to EKS
+
+## Manual Deployment Commands
+
+### Build and Push to ECR
+
+```bash
+# Authenticate with ECR
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_URI
+
+# Build and tag image
+docker build -f dockerfiles/artifact.dockerfile -t laravel-deploy:latest .
+docker tag laravel-deploy:latest $ECR_URI:latest
+
+# Push to ECR
+docker push $ECR_URI:latest
+```
+
+### Deploy to EKS
+
+```bash
+# Apply Kubernetes manifest
+kubectl apply -f kubernetes/laravel-app.yaml
+
+# Check deployment status
+kubectl get pods
+kubectl get services
+```
+
+## Project Structure
+
+```
+├── dockerfiles/        # Docker configuration files
+├── kubernetes/         # Kubernetes manifests
+├── nginx/              # Nginx configuration
+├── src/                # Laravel application source code
+├── .github/workflows/  # GitHub Actions CI/CD pipelines
+└── docker-compose.yml  # Local development environment
+```
+
+## Important Notes
+
+- **S3 Configuration**: This project uses S3 for storing environment files and SQLite database. In production, consider using RDS for database and proper secret management.
+- **Security**: Ensure proper IAM roles and policies are configured for least privilege access.
+- **Monitoring**: Consider adding monitoring and logging solutions for production deployments.
+- **Scaling**: The Kubernetes manifest can be modified to support horizontal pod autoscaling.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Docker build fails**: Check Dockerfile syntax and dependencies
+2. **EKS connection issues**: Verify AWS credentials and cluster configuration
+3. **Image pull errors**: Ensure ECR permissions are correctly configured
+4. **Pod startup failures**: Check logs with `kubectl logs <pod-name>`
+
+### Useful Commands
+
+```bash
+# Check cluster status
+kubectl cluster-info
+
+# View pod logs
+kubectl logs -f deployment/laravel-app
+
+# Scale deployment
+kubectl scale deployment laravel-app --replicas=3
+
+# Delete deployment
+kubectl delete -f kubernetes/laravel-app.yaml
+```
